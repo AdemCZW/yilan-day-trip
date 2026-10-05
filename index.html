@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="宜蘭私房自駕一日：決策時間軸對齊車流、天色、用餐尖峰與人潮，五個區塊說明怎麼走、為什麼這樣排。">
+<style>[hidden]{display:none!important}</style>
+<title>宜蘭慢遊一日</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap">
+<style>
+/* Layout: 孔版印刷小誌風格的單畫面 App。封面（油墨套印動畫）→ 按開始滑走 → 一個畫面內：
+   上＝決策時間軸（行程、車流、天色、用餐尖峰、各點人潮對齊同一條時間；可點、可拖）；
+   下左＝區塊面板（總覽＋5 個地理區，用頁籤／方向鍵／左右滑切換，不捲整頁）；下右＝路線圖。
+   紙色＋藍、螢光粉、黃、綠四色油墨；文字用藍墨；直角粗框。單一紙本視覺，不做深色版。 */
+:root{
+  --paper:#F1F2EC; --blue:#1E3A9E; --blue-soft:#C9D2EE; --pink:#FF4D9D; --yellow:#FFD23F; --green:#1FA35B;
+  --sea:#BFD0F2; --land:#F1F2EC;
+  --font:"Noto Sans TC","PingFang TC","Heiti TC","Microsoft JhengHei",system-ui,sans-serif;
+  --lab:132px; --r-l:26px; --r:16px; --r-s:10px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--paper);color:var(--blue);font-family:var(--font);font-weight:500;font-size:15px;line-height:1.7;margin:0;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow:hidden}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.35;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .23 0 0 0 0 .62 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+button{font-family:inherit;color:inherit;cursor:pointer}
+a{color:inherit;text-underline-offset:4px;text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+.stamp{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.06em;border:2px solid currentColor;border-radius:999px;padding:0 8px;line-height:1.6;white-space:nowrap}
+.seg{display:inline-flex;gap:2px;padding:3px;border:2.5px solid var(--blue);border-radius:999px;background:var(--paper)}
+.seg button{border:0;border-radius:999px;background:transparent;font-size:13px;font-weight:700;padding:3px 13px;transition:background .2s,color .2s}
+.seg button[aria-pressed="true"]{background:var(--blue);color:var(--paper)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:900;text-decoration:none;padding:13px 26px;border:2.5px solid var(--blue);border-radius:999px;background:var(--paper);box-shadow:5px 5px 0 var(--pink);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--pink)}
+.btn.solid{background:var(--blue);color:var(--paper)}
+
+/* ---------- 封面 ---------- */
+.cover{position:fixed;inset:0;z-index:30;background:var(--paper);overflow:auto;transition:transform .7s cubic-bezier(.7,0,.2,1)}
+.cover.gone{transform:translateY(-100%)}
+.cover-in{max-width:1280px;margin:0 auto;padding:0 20px;min-height:100%;display:flex;flex-direction:column}
+.mast{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;font-size:13px;font-weight:700;letter-spacing:.12em;padding-block:16px 12px;border-bottom:3px solid var(--blue)}
+.mast b{background:var(--blue);color:var(--paper);padding:0 10px;border-radius:999px}
+.hero{flex:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:40px;align-items:center;padding-block:28px 36px}
+.title{line-height:.95;font-weight:900}
+.title .big{display:block;font-size:clamp(96px,min(18vw,27vh),220px);letter-spacing:-.02em}
+.title .small{display:block;font-size:clamp(38px,min(6vw,9vh),80px);letter-spacing:.08em;margin-top:6px}
+.reg{position:relative;display:inline-block}
+.reg::after{content:attr(data-t);position:absolute;left:0;top:0;color:var(--pink);mix-blend-mode:multiply;transform:translate(.045em,.03em);animation:reg 1.4s cubic-bezier(.2,.8,.2,1) both .2s;pointer-events:none}
+@keyframes reg{from{transform:translate(.22em,-.12em);opacity:0}to{transform:translate(.045em,.03em);opacity:1}}
+.lede{font-size:clamp(16px,1.6vw,19px);max-width:25em;margin:20px 0 0}
+.lede mark{background:linear-gradient(transparent 55%,var(--yellow) 55%);color:inherit;padding-inline:2px}
+.hero-route{list-style:none;padding:0;margin:22px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.hero-route li{font-size:14px;font-weight:700;border:2px solid var(--blue);border-radius:999px;padding:4px 14px;display:flex;gap:8px;animation:pop .4s ease both;animation-delay:calc(var(--i) * 90ms + .7s)}
+.hero-route li i{font-style:normal;color:var(--pink)}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:26px}
+.cta small{font-size:13px}
+.art{position:relative;width:100%;max-width:min(540px,62vh);justify-self:end;aspect-ratio:1/1;border:3px solid var(--blue);border-radius:var(--r-l);overflow:hidden;margin:0}
+.art svg{display:block;width:100%;height:100%}
+.art .lay{mix-blend-mode:multiply;animation:register 1.6s cubic-bezier(.2,.8,.2,1) both}
+.art .ly{animation-delay:.1s;--dx:-22px;--dy:14px} .art .lp{animation-delay:.25s;--dx:20px;--dy:-16px} .art .lb{animation-delay:.4s;--dx:-14px;--dy:-20px} .art .lg{animation-delay:.55s;--dx:18px;--dy:18px}
+@keyframes register{from{transform:translate(var(--dx),var(--dy));opacity:0}to{transform:none;opacity:1}}
+.art .wave{animation:wave 9s linear infinite}
+@keyframes wave{to{transform:translateX(-80px)}}
+.art .boat{animation:bob 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bob{50%{transform:translateY(3px) rotate(-4deg)}}
+.art .birds{animation:fly 30s linear infinite -8s}
+@keyframes fly{from{transform:translateX(-80px)}to{transform:translateX(580px)}}
+.art .sunpulse{animation:sun 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes sun{50%{transform:scale(1.04)}}
+.art .rain{opacity:0;transition:opacity .5s}
+.is-rain .art .rain{opacity:1}
+.art .drop{animation:fall linear infinite}
+@keyframes fall{from{transform:translate(20px,-520px)}to{transform:translate(-10px,40px)}}
+.art-cap{position:absolute;left:14px;bottom:14px;background:var(--blue);color:var(--paper);font-size:12px;font-weight:700;letter-spacing:.1em;padding:4px 12px;border-radius:999px}
+
+/* ---------- App 外殼 ---------- */
+.shell{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-rows:auto auto minmax(0,1fr);grid-template-areas:"bar bar" "chart chart" "stage map"}
+.bar{grid-area:bar;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 20px;border-bottom:3px solid var(--blue)}
+.logo{font-size:18px;font-weight:900;letter-spacing:.04em;margin-right:auto;display:flex;align-items:center;gap:10px}
+.logo b{background:var(--blue);color:var(--paper);padding:0 10px;font-size:14px;border-radius:999px}
+.bar .lnk{border:2.5px solid var(--blue);border-radius:999px;background:var(--paper);font-size:13px;font-weight:900;padding:5px 14px;transition:background .2s}
+.bar .lnk:hover{background:var(--yellow)}
+
+/* 決策時間軸 */
+.navchart{grid-area:chart;border-bottom:3px solid var(--blue);padding:10px 20px 12px}
+.nc-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:8px}
+.nc-head h2{font-size:15px;font-weight:900;letter-spacing:.08em}
+.play{width:36px;height:36px;border-radius:50%;border:2.5px solid var(--blue);background:var(--yellow);display:grid;place-items:center;flex:none}
+.play svg{width:12px;height:12px;fill:var(--blue)}
+.clock-time{font-size:22px;font-weight:900;line-height:1}
+.status{font-size:13px;margin:0;flex:1;min-width:12em}
+.status b{font-weight:900}
+.nc-hint{font-size:12px}
+.chart-wrap{overflow-x:auto;overflow-y:hidden}
+.chart{position:relative;min-width:760px;border:2.5px solid var(--blue);border-radius:var(--r);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.crow{display:grid;grid-template-columns:var(--lab) minmax(0,1fr);border-top:1px solid var(--blue)}
+.crow:first-child{border-top:0}
+.crow .lab{font-size:12px;font-weight:900;padding:0 8px;border-right:2px solid var(--blue);display:flex;align-items:center;justify-content:space-between;gap:4px;white-space:nowrap;line-height:1.2}
+.crow .lab small{font-size:10px;font-weight:700}
+.crow.sm .lab{font-weight:700}
+.crow.hl .lab{background:var(--yellow)}
+.track{position:relative;height:18px;cursor:crosshair;background-image:linear-gradient(to right,rgba(30,58,158,.16) 1px,transparent 1px);background-size:calc(100% / 15) 100%}
+.crow.axis .track{height:20px;background:none}
+.crow.mk .track{height:24px}
+.crow.plan .track{height:32px}
+.crow.sm .track{height:15px}
+.track > *,.seg-c,.seg-off{position:absolute;top:2px;bottom:2px}
+.ax{font-size:11px;font-weight:700;transform:translateX(-50%);top:1px;bottom:auto}
+.seg-c{background:color-mix(in srgb,var(--pink) var(--v),var(--paper))}
+.seg-off{background:repeating-linear-gradient(135deg,transparent 0 3px,rgba(30,58,158,.25) 3px 4px)}
+.slot{border:2.5px solid var(--blue);border-radius:999px;top:0;bottom:0;background:transparent}
+.cl-b{border:2px solid var(--blue);border-radius:999px;background:var(--blue);color:var(--paper);font-size:11px;font-weight:900;padding:0 10px;transition:background .2s;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:left;display:block}
+.cl-b:hover{background:var(--yellow);color:var(--blue)}
+.cl-b[aria-current="true"]{background:var(--pink);border-color:var(--blue)}
+.lg{top:50%;bottom:auto;height:0;border-top:2px dashed var(--blue)}
+.mkr{top:2px;bottom:auto;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--pink);color:var(--paper);font-size:11px;font-weight:900;display:grid;place-items:center;mix-blend-mode:multiply}
+.meal{background:repeating-linear-gradient(90deg,var(--pink) 0 3px,transparent 3px 6px);opacity:.7;border-radius:999px}
+.day{background:var(--yellow);border-radius:999px 0 0 999px} .dusk{background:linear-gradient(90deg,var(--yellow),var(--pink),var(--blue))} .night{background:var(--blue);border-radius:0 999px 999px 0}
+.dlab{font-size:10px;font-weight:900;color:var(--blue);top:1px;bottom:auto;padding-left:4px}
+.selband{position:absolute;top:3px;bottom:3px;background:rgba(255,210,63,.35);mix-blend-mode:multiply;pointer-events:none;border:2px solid var(--blue);border-radius:14px;transition:left .35s ease,width .35s ease}
+.cursor{position:absolute;top:0;bottom:0;width:0;border-left:3px solid var(--pink);pointer-events:none;z-index:2}
+.cursor::before{content:"";position:absolute;top:-1px;left:-7px;border:6px solid transparent;border-top:8px solid var(--pink)}
+
+/* 區塊面板 */
+.stage{grid-area:stage;display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0}
+.stepper{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:2.5px solid var(--blue);overflow-x:auto;scrollbar-width:none}
+.stepper .arr{flex:none;width:38px;height:38px;border-radius:50%;border:2.5px solid var(--blue);background:var(--paper);font-size:16px;font-weight:900;display:grid;place-items:center;transition:background .2s}
+.stepper .arr:hover:not(:disabled){background:var(--yellow)}
+.stepper .arr:last-child{margin-left:auto}
+.stepper .arr:disabled{opacity:.3;cursor:default}
+.tab{flex:none;border:2px solid transparent;border-radius:999px;background:transparent;padding:4px 16px;text-align:left;line-height:1.3;transition:background .2s,border-color .2s}
+.tab b{display:block;font-size:14px;font-weight:900}
+.tab small{font-size:11px;font-weight:700}
+.tab:hover{background:var(--yellow);border-color:var(--blue)}
+.tab[aria-selected="true"]{background:var(--blue);color:var(--paper)}
+.panels{position:relative;overflow:hidden;min-height:0}
+.panel{position:absolute;inset:0;overflow:auto;padding:20px 22px 28px;touch-action:pan-y}
+.panel.in-r{animation:inr .38s cubic-bezier(.2,.8,.2,1) both} .panel.in-l{animation:inl .38s cubic-bezier(.2,.8,.2,1) both}
+@keyframes inr{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes inl{from{transform:translateX(-40px);opacity:0}to{transform:none;opacity:1}}
+.p-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 18px;margin-bottom:16px}
+.p-no{font-size:72px;font-weight:900;line-height:.8;color:var(--pink);mix-blend-mode:multiply}
+.p-head h2{font-size:clamp(26px,3vw,36px);font-weight:900;line-height:1.15}
+.p-head .t{font-size:15px;font-weight:900}
+.p-park{flex-basis:100%;font-size:13px;margin-top:4px}
+.p-park b{background:var(--blue);color:var(--paper);padding:0 10px;margin-right:8px;border-radius:999px}
+.p-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px}
+.h5{font-size:12px;font-weight:900;letter-spacing:.2em;border-bottom:3px solid var(--blue);padding-bottom:4px;margin:0 0 10px}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1.5px dotted var(--blue)}
+.steps .tm{font-size:15px;font-weight:900}
+.steps .nm{font-size:16px;font-weight:900;line-height:1.4}
+.steps .nm .stamp{margin-left:6px;color:var(--pink);vertical-align:2px}
+.steps p{margin:2px 0 0;font-size:13px;line-height:1.6}
+.why{list-style:none;margin:0 0 18px;padding:0}
+.why li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:start;padding:7px 0;border-bottom:1.5px dotted var(--blue);font-size:14px;line-height:1.65}
+.why .stamp{margin-top:3px}
+.f-人潮{color:var(--pink)} .f-車流{color:var(--pink)} .f-停車{color:var(--green)} .f-天氣,.f-光線{color:#B07A00} .f-營業時間,.f-用餐,.f-取捨{color:var(--blue)}
+.eatline{font-size:14px;padding:12px 16px;background:var(--yellow);border:2px solid var(--blue);border-radius:var(--r);margin-bottom:12px}
+.ifline{font-size:14px;padding:12px 16px;border:2px dashed var(--blue);border-radius:var(--r);transition:background .3s}
+.is-rain .ifline{background:var(--blue-soft);border-style:solid}
+.ifline b,.eatline b{font-weight:900;margin-right:6px}
+.decide{list-style:none;margin:0;padding:0;counter-reset:d}
+.decide li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;padding:10px 0;border-bottom:1.5px dotted var(--blue)}
+.decide li::before{counter-increment:d;content:counter(d,decimal-leading-zero);font-size:30px;font-weight:900;line-height:1;color:var(--pink);mix-blend-mode:multiply}
+.decide b{display:block;font-size:17px;font-weight:900;line-height:1.4}
+.decide span{font-size:13px;line-height:1.65;display:block;margin-top:2px}
+.decide i{font-style:normal;display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--pink);color:var(--paper);font-size:10px;font-weight:900;margin:0 2px;vertical-align:1px}
+.rules{list-style:none;margin:0;padding:0}
+.rules li{padding:9px 0;border-bottom:1.5px dotted var(--blue);font-size:14px;line-height:1.6}
+.rules li b{display:block;font-weight:900}
+.rules li.hot{background:var(--yellow);padding-inline:12px;border-radius:var(--r-s);border-bottom-color:transparent}
+.conf{font-size:12px;margin-top:14px}
+
+/* 路線圖欄 */
+.mapcol{grid-area:map;border-left:3px solid var(--blue);overflow:auto;display:flex;flex-direction:column;padding:14px}
+.map{display:block;width:100%;height:auto;border:2.5px solid var(--blue);border-radius:var(--r-l)}
+.map .stop-dot{cursor:pointer}
+.map .stop-dot rect{fill:var(--paper);stroke:var(--blue);stroke-width:2.5}
+.map .stop-dot text{fill:var(--blue);font:900 12px var(--font);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.map .stop-dot.sel rect{fill:var(--yellow)}
+.map .stop-dot.is-now rect{fill:var(--pink)}
+.map .lbl{font:700 12px var(--font);fill:var(--blue);paint-order:stroke;stroke:var(--land);stroke-width:4px;stroke-linejoin:round}
+.map .lbl-sea{font:700 11px var(--font);fill:var(--blue);opacity:.6;letter-spacing:.3em}
+.map .leg{fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.map .leg-return{stroke-dasharray:3 6;stroke-width:2}
+.map .leg-draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:route 1.6s ease forwards}
+@keyframes route{to{stroke-dashoffset:0}}
+.car{fill:var(--yellow);stroke:var(--blue);stroke-width:2.5}
+.car-ring{fill:none;stroke:var(--pink);stroke-width:2.5;animation:ring 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ring{from{transform:scale(.7);opacity:1}to{transform:scale(2.2);opacity:0}}
+.map-note{font-size:12px;padding:10px 4px 0;margin:0}
+
+/* 出發清單抽屜 */
+.drawer{position:fixed;inset:0;z-index:40;background:rgba(30,58,158,.25)}
+.drawer-in{position:absolute;top:10px;right:10px;bottom:10px;width:min(420px,calc(100% - 20px));background:var(--paper);border:3px solid var(--blue);border-radius:var(--r-l);padding:20px 22px;overflow:auto;animation:dr .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dr{from{transform:translateX(100%)}to{transform:none}}
+.drawer h2{font-size:24px;font-weight:900;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--blue);padding-bottom:8px}
+.drawer h2 button{border:2.5px solid var(--blue);border-radius:999px;background:var(--paper);font-size:14px;font-weight:900;padding:2px 10px}
+.checks{list-style:none;margin:8px 0 18px;padding:0}
+.checks label{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1.5px dotted var(--blue);cursor:pointer;font-weight:700}
+.checks input{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:50%;border:2.5px solid var(--blue);background:var(--paper);margin:0;flex:none;cursor:pointer;display:grid;place-items:center}
+.checks input:checked{background:var(--pink)}
+.checks input:checked::after{content:"";width:6px;height:11px;border:solid var(--paper);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.checks input:checked + span{text-decoration:line-through;text-decoration-color:var(--pink);text-decoration-thickness:3px}
+.drawer .notes{font-size:13px;padding-left:1.2em;margin:0}
+.drawer .notes li{padding:6px 0}
+
+@media (max-width:980px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .art{justify-self:start;max-width:440px}
+  body{overflow:auto}
+  .shell{display:block;height:auto}
+  .bar{position:sticky;top:0;z-index:12;background:var(--paper)}
+  .stage{display:block}
+  .stepper{position:sticky;top:var(--barh,56px);z-index:11;background:var(--paper);border-top:3px solid var(--blue)}
+  .stepper .arr{display:none}
+  .panels{overflow:visible}
+  .panel{position:static;overflow:visible;padding:18px 16px 28px}
+  .mapcol{border-left:0;border-top:3px solid var(--blue);padding:14px 16px 20px}
+  .map{max-height:420px}
+  .p-cols{grid-template-columns:minmax(0,1fr)}
+  .chart{touch-action:auto}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .map .leg-draw{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+
+
+<!-- 封面 -->
+<div class="cover" id="cover">
+  <div class="cover-in">
+    <div class="mast"><span><b>宜蘭</b>　一日慢遊・私房自駕小誌</span><span>2026・十月號　台北出發</span></div>
+    <header class="hero">
+      <div>
+        <h1 class="title" aria-label="宜蘭 一日慢遊"><span class="big"><span class="reg" data-t="宜蘭">宜蘭</span></span><span class="small"><span class="reg" data-t="一日慢遊">一日慢遊</span></span></h1>
+        <p class="lede">早上走溪谷步道，中午在舊城吃<mark>紅糟魷魚</mark>，下午看濕地候鳥，傍晚坐在<mark>豆腐岬</mark>看海，晚上到夜市找龍鳳腿。每一段都避開人潮、車潮和排隊尖峰。</p>
+        <ol class="hero-route" id="heroRoute" aria-label="五個區塊"></ol>
+        <div class="cta">
+          <button type="button" class="btn solid" id="start">開始看行程 →</button>
+          <small>之後用頁籤、方向鍵或左右滑切換，不用上下捲</small>
+        </div>
+      </div>
+      <figure class="art" aria-hidden="true">
+        <svg viewBox="0 0 500 500">
+          <defs>
+            <pattern id="dotsB" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.7" fill="#1E3A9E"/></pattern>
+            <pattern id="dotsG" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.6" fill="#1FA35B"/></pattern>
+            <pattern id="dotsP" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="2.4" fill="#FF4D9D"/></pattern>
+          </defs>
+          <g class="lay ly"><circle class="sunpulse" cx="318" cy="168" r="96" fill="#FFD23F"/><path d="M0 360 L500 330 L500 500 L0 500 Z" fill="#FFD23F" opacity=".55"/></g>
+          <g class="lay lp"><circle cx="338" cy="186" r="62" fill="#FF4D9D"/><rect x="250" y="300" width="160" height="70" fill="url(#dotsP)"/>
+            <g class="boat"><path d="M392 318 L440 318 L432 328 L400 328 Z" fill="#FF4D9D"/><path d="M412 318 L412 298 L426 314 Z" fill="#FF4D9D"/></g></g>
+          <g class="lay lb">
+            <path d="M0 292 L0 170 C40 150 70 120 110 136 C150 152 170 110 214 122 C258 134 280 190 330 250 C350 274 380 290 410 300 L0 300 Z" fill="url(#dotsB)"/>
+            <rect x="0" y="296" width="500" height="80" fill="#1E3A9E" opacity=".85"/>
+            <path d="M282 298 C300 290 314 262 338 256 C358 251 370 270 376 282 C380 288 384 288 388 283 C393 276 402 276 406 285 C410 292 413 296 420 298 Z" fill="#1E3A9E"/>
+            <g class="wave" fill="none" stroke="#F1F2EC" stroke-width="2.5" stroke-linecap="round">
+              <path d="M0 320 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/>
+              <path d="M-20 346 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/>
+            </g>
+            <g class="birds" fill="none" stroke="#1E3A9E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M40 70 l8 6 l8 -6"/><path d="M66 56 l6 5 l6 -5"/><path d="M78 84 l5 4 l5 -4"/></g>
+            <g class="rain" id="rain" stroke="#1E3A9E" stroke-width="2"></g>
+          </g>
+          <g class="lay lg"><path d="M0 380 L500 352 L500 500 L0 500 Z" fill="url(#dotsG)"/>
+            <g stroke="#1FA35B" stroke-width="5" fill="none" stroke-linecap="round"><path d="M0 410 L500 384"/><path d="M0 448 L500 424"/><path d="M0 488 L500 466"/><path d="M120 500 L180 368"/><path d="M300 500 L330 360"/></g></g>
+        </svg>
+        <figcaption class="art-cap">從頭城看龜山島日出</figcaption>
+      </figure>
+    </header>
+  </div>
+</div>
+
+<!-- App -->
+<div class="shell" id="shell">
+  <header class="bar" id="bar">
+    <div class="logo"><b>宜蘭</b>一日慢遊</div>
+    <div class="seg" role="group" aria-label="出發日"><button type="button" data-day="sat" aria-pressed="true">週六去</button><button type="button" data-day="sun" aria-pressed="false">週日去</button></div>
+    <div class="seg" role="group" aria-label="天氣"><button type="button" data-rain="0" aria-pressed="true">晴天</button><button type="button" data-rain="1" aria-pressed="false">下雨</button></div>
+    <button type="button" class="lnk" id="openPrep">出發清單</button>
+    <button type="button" class="lnk" id="toCover">封面</button>
+  </header>
+
+  <section class="navchart" aria-label="決策時間軸">
+    <div class="nc-head">
+      <h2>一天的決策圖</h2>
+      <button class="play" id="play" type="button" aria-label="播放一整天"><svg viewBox="0 0 16 16" id="playIcon"><path d="M3 1.5v13l11-6.5z"/></svg></button>
+      <span class="clock-time" id="clockTime">07:00</span>
+      <p class="status" id="status" aria-live="polite"></p>
+      <span class="nc-hint">粉色越深越擠・粗框＝你在那裡的時段・點區塊切換、在圖上拖曳看任一時間</span>
+    </div>
+    <div class="chart-wrap"><div class="chart" id="chart"></div></div>
+  </section>
+
+  <main class="stage">
+    <div class="stepper" id="stepper" role="tablist" aria-label="區塊"></div>
+    <div class="panels" id="panels"></div>
+  </main>
+
+  <aside class="mapcol">
+    <svg class="map" id="map" viewBox="0 0 400 480" role="img" aria-label="宜蘭路線示意地圖">
+      <rect width="400" height="480" fill="var(--sea)"/>
+      <path d="M0 0 L172 0 L178 20 L214 72 L217 149 L222 253 L228 305 L239 382 L262 408 L251 434 L234 460 L228 480 L0 480 Z" fill="var(--land)" stroke="var(--blue)" stroke-width="2"/>
+      <path d="M0 0 L92 0 C76 60 70 120 64 150 C54 210 40 262 40 292 C44 340 70 378 92 392 C130 420 168 440 186 480 L0 480 Z" fill="url(#dotsG)" opacity=".5"/>
+      <path d="M20 318 C70 300 110 272 143 266 S200 262 222 259" fill="none" stroke="var(--blue)" stroke-width="2" stroke-dasharray="1 4" stroke-linecap="round"/>
+      <path d="M338 92 C344 82 356 82 362 90 C366 94 370 94 372 98 L336 98 Z" fill="var(--blue)"/>
+      <text class="lbl-sea" x="354" y="116" text-anchor="middle">龜山島</text>
+      <text class="lbl-sea" x="318" y="270" text-anchor="middle">太平洋</text>
+      <text class="lbl" x="208" y="66">頭城</text>
+      <text class="lbl" x="40" y="22">台北 · 國5</text>
+      <ellipse id="clRing" cx="0" cy="0" rx="0" ry="0" fill="rgba(255,210,63,.45)" stroke="var(--blue)" stroke-width="2" stroke-dasharray="4 4"/>
+      <g id="legs"></g>
+      <g id="dots"></g>
+      <g id="car" transform="translate(34 28)"><circle class="car-ring" r="9"/><rect class="car" x="-8" y="-8" width="16" height="16" rx="5"/></g>
+    </svg>
+    <p class="map-note">黃色虛線圈＝目前這一區。點地圖上的號碼也能切換。</p>
+  </aside>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-in" role="dialog" aria-label="出發清單">
+    <h2>出發清單 <button type="button" id="closePrep">關閉</button></h2>
+    <ul class="checks" id="checks"></ul>
+    <ul class="notes">
+      <li>出發前看 <a href="https://1968.freeway.gov.tw/" target="_blank" rel="noopener">高速公路 1968 即時路況 ↗</a> 與 <a href="https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=10002" target="_blank" rel="noopener">氣象署宜蘭預報 ↗</a>。</li>
+      <li>勾過的項目會記在這台裝置上。</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+/* ===== 資料 ===== */
+const H0 = 8; // 人潮資料 8–21 點
+const STOPS = [ // 地圖上的 6 個點；c＝所屬區塊
+  { name:'林美石磐步道', short:'林美石磐', c:0, start:490, end:615, x:121, y:136, lx:107, ly:140, anchor:'end', crowd:[2,3,5,6,6,6,5,4,2,0,0,0,0,0] },
+  { name:'宜蘭舊城', short:'宜蘭舊城', c:1, start:635, end:770, x:138, y:209, lx:152, ly:213, anchor:'start', crowd:[2,4,6,8,9,6,5,5,5,4,3,2,1,1] },
+  { name:'傳藝中心', short:'傳藝中心', c:2, start:800, end:920, x:203, y:297, lx:217, ly:301, anchor:'start', crowd:[0,3,5,7,7,8,9,8,6,3,0,0,0,0] },
+  { name:'五十二甲濕地', short:'五十二甲', c:2, start:930, end:975, x:168, y:322, lx:176, ly:342, anchor:'start', crowd:[1,1,2,2,2,2,2,3,3,2,0,0,0,0] },
+  { name:'南方澳', short:'南方澳', c:3, start:1005, end:1080, x:253, y:428, lx:267, ly:432, anchor:'start', crowd:[2,3,4,7,9,7,6,6,6,6,4,3,2,1] },
+  { name:'羅東夜市', short:'羅東夜市', c:4, start:1110, end:1200, x:143, y:309, lx:129, ly:300, anchor:'end', crowd:[0,0,0,0,0,0,0,2,4,6,8,10,9,7] },
+];
+const CLUSTERS = [
+  { name:'礁溪山邊', start:490, end:615, ring:[121,136,30,28],
+    park:'林美石磐步道入口（九點後漸滿）；泡腳停湯圍溝公園周邊收費格',
+    steps:[ ['08:10','林美石磐步道','溪谷步道全程 1.7 公里，沿路小瀑布，來回約 1.5 小時。','私房'],
+            ['09:40','開車 10 分到礁溪市區',''],
+            ['09:50','湯圍溝公園免費泡腳池','泡 20 分鐘放鬆腿，買溫泉蛋、溫泉空心菜。','加碼'] ],
+    why:[ ['人潮','步道九點前幾乎沒人，十點後開始熱鬧。'],
+          ['停車','步道口車位不多，九點後漸滿，早到最穩。'],
+          ['天氣','溪谷早上最涼；先走路、後泡腳，順序不能反。'] ],
+    eat:'07:00 出門前買好早餐在車上吃，這區只吃溫泉蛋當點心。',
+    ifs:'下雨就不走步道（石階濕滑），直接泡腳，或改去頭城的蘭陽博物館（室內）。' },
+  { name:'宜蘭舊城', start:635, end:770, ring:[138,209,26,24],
+    park:'宜蘭火車站周邊公有停車場，停一次，全程用走的（約 2.5 公里）',
+    steps:[ ['10:45','宜蘭設治紀念館','日治時期最高長官宿舍，木造和式建築與老樹。不用排隊，先來。','私房'],
+            ['11:35','北門蒜味肉羹','趕在 12 點排隊潮前坐下。'],
+            ['12:00','北門綠豆沙牛乳大王','10 點開門；據網路資訊週日至週二公休。'],
+            ['12:15','廟口紅糟魷魚＋香菇粥','據網路資訊中午才開賣，排在最後剛好接上。'],
+            ['12:40','走回停車場','順路買膽肝（宜蘭醃曬豬肝）當伴手禮。'] ],
+    why:[ ['營業時間','順序照開門時間排：紀念館隨時可去、綠豆沙 10 點開、紅糟魷魚中午才開。'],
+          ['人潮','肉羹 12 點後開始排，11:35 到比尖峰早 25 分鐘。'],
+          ['停車','舊城巷子窄、路邊格難找，停公有停車場一次走完，比找車位省時間。'] ],
+    eat:'三家都是小份量，分著吃剛好是一頓午餐，也不會撐到下午。',
+    ifs:'下雨不用改，全程在室內和騎樓。週日去的話綠豆沙公休，那段時間在紀念館多坐一下。' },
+  { name:'冬山河', start:800, end:975, ring:[186,310,40,30],
+    park:'傳藝中心停車場（車位多，按次收費）；濕地旁路邊可停',
+    steps:[ ['13:20','國立傳統藝術中心','直接走到園區最裡面，再往回逛老街和工坊。'],
+            ['14:30','（有空）冬山河水上巴士','傳藝碼頭往返親水公園，單程約 15 分，班次看公告。','順遊'],
+            ['15:20','先上好廁所，開車 10 分','濕地沒有廁所和商店。'],
+            ['15:30','五十二甲濕地','十月起候鳥南遷到這裡，沿田埂慢慢走。','私房'] ],
+    why:[ ['取捨','傳藝下午最擠，但早上那格留給步道更值得：步道早上又涼、又空、又好停；傳藝下午擠一點還是能逛。'],
+          ['天氣','傳藝有騎樓和室內，放在一天最熱、最可能下陣雨的時段最保險。'],
+          ['光線','濕地放在三點半後，太陽變斜，水田反光最漂亮，人也一直很少。'] ],
+    eat:'傳藝老街吃三星蔥油餅當下午點心。',
+    ifs:'下雨就刪掉濕地，傳藝多待 45 分鐘看室內展館和表演。' },
+  { name:'南方澳', start:1005, end:1080, ring:[253,428,26,24],
+    park:'南天宮前停車場（按次收費）；豆腐岬停車以現場為準',
+    steps:[ ['16:45','豆腐岬','弧形海岸步道，看漁船進港。','私房'],
+            ['17:20','內埤海灘（情人灣）','月牙形海灣。17:40 前後日落，天空轉粉紫。','私房'],
+            ['17:45','南天宮旁小巷','漁町小吃或鯖蔥燒，只點一兩樣。'] ],
+    why:[ ['人潮','南方澳是中午海鮮午餐最擠，傍晚人已經散了。'],
+          ['光線','海灣朝東，太陽落在背後的山，看不到夕陽落海；看的是日落前後天色變粉紫，加上漁港亮燈。'],
+          ['用餐','只吃點心，把胃留給夜市。'] ],
+    eat:'鯖魚是南方澳的招牌，鯖蔥燒最有代表性。',
+    ifs:'下雨就跳過海灘，改逛南天宮和有屋頂的魚市。' },
+  { name:'羅東', start:1110, end:1200, ring:[143,309,26,24],
+    park:'羅東火車站、轉運站一帶公有停車場，走 5–10 分（夜市周邊路邊格很搶）',
+    steps:[ ['18:30','華記龍鳳腿、小春糕渣卜肉','19 點前隊伍最短，先把要排隊的吃掉。龍鳳腿一支約 20 元。'],
+            ['19:00','民族路一鑫園','夜市最擠的時候，換到店面坐著吃西魯肉、糕渣。','私房'],
+            ['19:40','羅東紅豆湯圓','60 年老店，吃完炸物剛好收尾。'],
+            ['20:00','上國5回台北','週六約 21:30 到；週日建議 21:00 後再走。'] ],
+    why:[ ['人潮','夜市 19 點最擠：18:30 先排名店，19:00 正擠的時候換到旁邊店面坐。'],
+          ['車流','週日北上國5 從下午三點塞到晚上，20:00 後開始退；週六北上本來就比較順。'],
+          ['停車','停稍遠的公有停車場走過去，比在夜市周邊繞圈找位快。'] ],
+    eat:'龍鳳腿、糕渣、西魯肉都是宜蘭才吃得到的。',
+    ifs:'大雨時攤位會少，直接去一鑫園坐著吃，再外帶龍鳳腿上車。' },
+];
+const LEGS = [
+  { from:420, to:490, label:'台北 → 林美石磐', d:'M34 28 C90 50 140 60 178 85 S130 115 121 136' },
+  { from:615, to:635, label:'前往宜蘭舊城', d:'M121 136 C128 160 132 185 138 209' },
+  { from:770, to:800, label:'前往傳藝中心', d:'M138 209 C170 230 195 260 203 297' },
+  { from:920, to:930, label:'前往五十二甲濕地', d:'M203 297 C195 312 180 320 168 322' },
+  { from:975, to:1005, label:'前往南方澳', d:'M168 322 C200 360 235 395 253 428' },
+  { from:1080, to:1110, label:'前往羅東', d:'M253 428 C220 400 170 350 143 309' },
+  { from:1200, to:1290, label:'羅東 → 台北', ret:true, d:'M143 309 C120 250 110 180 150 120 S120 55 34 28' },
+];
+// 國5 車流（7–21 點，0–10，依假日經驗估算）
+const SOUTH = [5,8,8,7,5,4,3,3,3,3,2,2,2,2,1];
+const NORTH = { sat:[1,1,2,2,3,3,4,5,5,5,5,4,4,3,2], sun:[1,1,2,2,3,4,6,8,9,9,9,9,8,6,4] };
+const MARKS = [ [420,1,'07:00 出門'], [490,2,'08:10 步道'], [695,3,'11:35 午餐'], [1058,4,'17:40 日落'], [1110,5,'18:30 夜市'], [1200,6,'20:00 回程'] ];
+const DECIDE = [
+  ['週六去，比週日好','週日北上國5 從下午三點塞到晚上九點，北門綠豆沙也是週日公休。'],
+  ['07:00 出門','國5 南下 8–11 點最塞，早一小時出門 <i>1</i>，到步道又剛好是人最少的時候 <i>2</i>。'],
+  ['戶外放早晚，室內放中午','步道在清晨，濕地和海邊在傍晚 <i>4</i>；中午最熱、最可能下陣雨的時段放在舊城騎樓和傳藝。'],
+  ['吃飯都卡在尖峰前','肉羹 11:35 <i>3</i>、夜市 18:30 <i>5</i>；夜市最擠的 19:00 換到店面坐著吃。'],
+  ['最難停的兩區只停一次','舊城、羅東都停公有停車場，用走的把吃的串起來，不在巷子裡繞。'],
+  ['20:00 才上國5','避開北上最塞的時段 <i>6</i>；週日再多待一小時更順。'],
+];
+const RULES = [
+  { k:'sun', t:'如果週日去', d:'跳過綠豆沙；在羅東待到 21:00 再上國5，北上會順很多。' },
+  { k:'rain', t:'如果早上下雨', d:'不走步道（石階濕滑），直接湯圍溝泡腳，或去頭城蘭陽博物館。' },
+  { k:'rain', t:'如果整天大雨', d:'刪掉濕地和海灘，改成：舊城 → 傳藝多待 → 南天宮與魚市 → 一鑫園坐著吃。' },
+  { k:'', t:'如果落後 30 分鐘', d:'先刪五十二甲濕地（省 45 分）。' },
+  { k:'', t:'如果落後 1 小時', d:'再把傳藝縮成 1 小時、不搭水上巴士。' },
+  { k:'', t:'如果提早', d:'南方澳多留，去內埤海灘踩沙。' },
+  { k:'', t:'如果帶長輩或小孩', d:'步道只走前段；濕地沒有廁所，在傳藝先上好。' },
+];
+const CHECKS = ['防滑好走的鞋（步道）','泡腳用小毛巾','雨傘或輕便雨衣','薄外套（海邊、夜市會冷）','帽子（濕地沒遮蔭）','現金零錢（夜市、路邊停車）','ETC 餘額','保冷袋（膽肝、伴手禮）'];
+const C0 = 420, C1 = 1320, P1 = 1290; // 圖表 07–22 點；播放到 21:30
+
+/* ===== 小工具 ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const pad = n => String(n).padStart(2,'0');
+const fmt = m => { m = Math.round(m); return pad(Math.floor(m/60)) + ':' + pad(m%60); };
+const pct = t => ((t - C0) / (C1 - C0) * 100).toFixed(3) + '%';
+const wid = (a,b) => ((b - a) / (C1 - C0) * 100).toFixed(3) + '%';
+const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
+const onHr = (s,h) => h*60 + 60 > s.start && h*60 < s.end;
+const avg = a => a.reduce((x,y)=>x+y,0) / a.length;
+let day = 'sat', sel = 0, cur = C0;
+
+/* ===== 封面 ===== */
+$('#heroRoute').innerHTML = CLUSTERS.map((c,i) => `<li style="--i:${i}"><i>${i+1}</i>${c.name}</li>`).join('');
+(function rain(){ let r=''; for(let i=0;i<46;i++){ const x=Math.random()*540, y=Math.random()*500, d=(.6+Math.random()*.5).toFixed(2);
+  r += `<line class="drop" x1="${x|0}" y1="${y|0}" x2="${(x-5)|0}" y2="${(y+16)|0}" style="animation-duration:${d}s;animation-delay:-${(Math.random()*d).toFixed(2)}s"/>`; } $('#rain').innerHTML = r; })();
+function openApp(){ $('#cover').classList.add('gone'); setTimeout(() => { $('#cover').hidden = true; }, 700); $('#start').blur(); }
+$('#start').addEventListener('click', openApp);
+$('#toCover').addEventListener('click', () => { const c = $('#cover'); c.hidden = false; requestAnimationFrame(() => requestAnimationFrame(() => c.classList.remove('gone'))); });
+
+/* ===== 決策時間軸 ===== */
+function row(label, inner, cls, sub){ return `<div class="crow ${cls||''}"><div class="lab"><span>${label}</span>${sub?`<small>${sub}</small>`:''}</div><div class="track">${inner}</div></div>`; }
+function hourSegs(arr, h0, title){ return arr.map((v,k) => { const h = h0 + k; return `<span class="seg-c" style="left:${pct(h*60)};width:${wid(0,60)};--v:${v*10}%" title="${title} ${h} 點"></span>`; }).join(''); }
+function buildChart(){
+  let html = row('時刻', Array.from({length:16}, (_,k) => `<span class="ax" style="left:${pct((7+k)*60)};${k===0?'transform:none;padding-left:3px':k===15?'transform:translateX(-100%);padding-right:3px':''}">${7+k}</span>`).join(''), 'axis');
+  html += row('關鍵時刻', MARKS.map(([t,n,txt]) => `<span class="mkr" style="left:${pct(t)};${t===C0?'margin-left:1px':''}" title="${txt}">${n}</span>`).join(''), 'mk');
+  html += row('你的行程',
+    LEGS.map(l => `<span class="lg" style="left:${pct(l.from)};width:${wid(l.from,l.to)}"></span>`).join('') +
+    CLUSTERS.map((c,i) => `<button type="button" class="cl-b" data-sel="${i+1}" style="left:${pct(c.start)};width:${wid(c.start,c.end)}" title="${c.name} ${fmt(c.start)}–${fmt(c.end)}">${i+1} ${c.name}</button>`).join(''), 'plan');
+  html += row('國5 南下', hourSegs(SOUTH, 7, '南下車流'), '', '估');
+  html += row('國5 北上', `<span id="northSegs" style="position:absolute;inset:0">${hourSegs(NORTH[day], 7, '北上車流')}</span>`, '', day==='sun'?'週日':'週六');
+  html += row('天色', `<span class="day" style="left:${pct(C0)};width:${wid(C0,1055)}"></span><span class="dusk" style="left:${pct(1055)};width:${wid(1055,1085)}"></span><span class="night" style="left:${pct(1085)};width:${wid(1085,C1)}"></span><span class="dlab" style="left:${pct(1055)};transform:translateX(-100%);padding-right:6px">日落約 17:40 →</span>`);
+  html += row('用餐尖峰', `<span class="meal" style="left:${pct(690)};width:${wid(690,780)}"></span><span class="meal" style="left:${pct(1050)};width:${wid(1050,1170)}"></span>`);
+  STOPS.forEach((s,i) => {
+    const mine = avg(s.crowd.filter((v,k) => onHr(s, H0+k))), peak = Math.max(...s.crowd);
+    const cells = s.crowd.map((v,k) => { const h = H0+k; return v === 0
+      ? `<span class="seg-off" style="left:${pct(h*60)};width:${wid(0,60)}" title="${s.short} ${h} 點未開放"></span>`
+      : `<span class="seg-c" style="left:${pct(h*60)};width:${wid(0,60)};--v:${v*10}%" title="${s.short} ${h} 點人潮 ${v}/10"></span>`; }).join('');
+    html += row(s.short, cells + `<span class="slot" style="left:${pct(s.start)};width:${wid(s.start,s.end)}"></span>`, `sm st-${i}`, `你 ${Math.round(mine)}／峰 ${peak}`);
+  });
+  html += `<div class="selband" id="selband"></div><div class="cursor" id="cursor"></div>`;
+  $('#chart').innerHTML = html;
+}
+buildChart();
+// 拖曳／點擊時間軸 → 設定時間
+(function chartDrag(){
+  const chart = $('#chart'); let dragging = false;
+  const timeAt = x => { const tr = chart.querySelector('.track').getBoundingClientRect(); return Math.max(C0, Math.min(P1, C0 + (x - tr.left) / tr.width * (C1 - C0))); };
+  chart.addEventListener('pointerdown', e => {
+    if(e.target.closest('.cl-b') || e.target.closest('.lab')) return;
+    dragging = true; chart.setPointerCapture(e.pointerId); stopPlay(); cur = timeAt(e.clientX); update(true);
+  });
+  chart.addEventListener('pointermove', e => { if(!dragging || e.pointerType === 'touch') return; cur = timeAt(e.clientX); update(true); });
+  ['pointerup','pointercancel'].forEach(ev => chart.addEventListener(ev, () => { dragging = false; }));
+  chart.addEventListener('click', e => { const b = e.target.closest('.cl-b'); if(b){ stopPlay(); const k = +b.dataset.sel; cur = CLUSTERS[k-1].start; select(k); update(false); } });
+})();
+
+/* ===== 面板 ===== */
+const PANELS = [{ tab:'總覽', sub:'為什麼這樣排' }].concat(CLUSTERS.map((c,i) => ({ tab:`${i+1} ${c.name}`, sub:`${fmt(c.start)}–${fmt(c.end)}` })));
+$('#stepper').innerHTML = `<button type="button" class="arr" id="prev" aria-label="上一區">←</button>` +
+  PANELS.map((p,i) => `<button type="button" class="tab" role="tab" id="tab-${i}" aria-controls="panel-${i}" data-sel="${i}"><b>${p.tab}</b><small>${p.sub}</small></button>`).join('') +
+  `<button type="button" class="arr" id="next" aria-label="下一區">→</button>`;
+function overviewHTML(){
+  return `<div class="p-head"><span class="p-no">0</span><div><h2>結論先講</h2><div class="t">六個決定，加上臨場怎麼改</div></div></div>
+  <div class="p-cols">
+    <div><h3 class="h5">這樣排的六個決定</h3><ol class="decide">${DECIDE.map(([b,s]) => `<li><div><b>${b}</b><span>${s}</span></div></li>`).join('')}</ol></div>
+    <div><h3 class="h5">臨場判斷</h3><ul class="rules" id="rules">${RULES.map(r => `<li data-k="${r.k}"><b>${r.t}</b>${r.d}</li>`).join('')}</ul>
+      <p class="conf">人潮、車流是依假日經驗估算，不是即時資料。店家營業時間來自網路整理，標「據網路資訊」的出發前再確認。</p></div>
+  </div>`;
+}
+function clusterHTML(c,i){
+  return `<div class="p-head"><span class="p-no">${i+1}</span><div><h2>${c.name}</h2><div class="t">${fmt(c.start)}–${fmt(c.end)}・停留 ${c.end - c.start} 分</div></div>
+    <div class="p-park"><b>停車</b>${c.park}</div></div>
+  <div class="p-cols">
+    <div><h3 class="h5">怎麼走</h3><ol class="steps">${c.steps.map(([t,n,d,tag]) => `<li><span class="tm">${t}</span><div><div class="nm">${n}${tag?`<span class="stamp">${tag}</span>`:''}</div>${d?`<p>${d}</p>`:''}</div></li>`).join('')}</ol></div>
+    <div><h3 class="h5">為什麼這樣排</h3><ul class="why">${c.why.map(([f,t]) => `<li><span class="stamp f-${f}">${f}</span><span>${t}</span></li>`).join('')}</ul>
+      <p class="eatline"><b>吃</b>${c.eat}</p>
+      <p class="ifline"><b>出狀況</b>${c.ifs}</p></div>
+  </div>`;
+}
+$('#panels').innerHTML = PANELS.map((p,i) => `<section class="panel" id="panel-${i}" role="tabpanel" aria-labelledby="tab-${i}" tabindex="-1" hidden>${i ? clusterHTML(CLUSTERS[i-1], i-1) : overviewHTML()}</section>`).join('');
+
+function select(i){
+  i = Math.max(0, Math.min(PANELS.length - 1, i));
+  if(i === sel && !$('#panel-'+i).hidden) return;
+  const dir = i >= sel ? 'in-r' : 'in-l';
+  $$('.panel').forEach(p => { p.hidden = true; p.classList.remove('in-r','in-l'); });
+  const p = $('#panel-'+i); p.hidden = false; void p.offsetWidth; p.classList.add(dir); p.scrollTop = 0;
+  sel = i;
+  $$('.tab').forEach(t => t.setAttribute('aria-selected', +t.dataset.sel === i));
+  $$('.cl-b').forEach(b => b.setAttribute('aria-current', +b.dataset.sel === i));
+  $('#prev').disabled = i === 0; $('#next').disabled = i === PANELS.length - 1;
+  const tab = $('#tab-'+i), st = $('#stepper');
+  if(st.scrollWidth > st.clientWidth) st.scrollTo({ left: tab.offsetLeft - (st.clientWidth - tab.offsetWidth)/2, behavior:'smooth' });
+  // 時間軸與地圖跟著標出這一區
+  const band = $('#selband'), lab = $('#chart .lab').offsetWidth;
+  if(i === 0){ band.style.display = 'none'; } else {
+    const c = CLUSTERS[i-1]; band.style.display = '';
+    band.style.left = `calc(${lab}px + (100% - ${lab}px) * ${(c.start - C0)/(C1 - C0)})`;
+    band.style.width = `calc((100% - ${lab}px) * ${(c.end - c.start)/(C1 - C0)})`;
+  }
+  $$('.crow.sm').forEach((r,k) => r.classList.toggle('hl', i > 0 && STOPS[k].c === i-1));
+  $$('.stop-dot').forEach(d => d.classList.toggle('sel', i > 0 && STOPS[+d.dataset.i].c === i-1));
+  const ring = $('#clRing');
+  if(i === 0){ ring.setAttribute('rx', 0); ring.setAttribute('ry', 0); } else { const [x,y,rx,ry] = CLUSTERS[i-1].ring; ring.setAttribute('cx', x); ring.setAttribute('cy', y); ring.setAttribute('rx', rx); ring.setAttribute('ry', ry); }
+  // 手機：面板頂端被捲過頭時，只回到面板開頭，不回整頁頂端
+  if(innerWidth <= 980){ const top = $('#stepper').getBoundingClientRect().top; const barH = $('#bar').offsetHeight; if(top < barH - 1) scrollTo({ top: scrollY + top - barH, behavior:'smooth' }); }
+}
+$('#stepper').addEventListener('click', e => { const t = e.target.closest('[data-sel]'); if(t) select(+t.dataset.sel); });
+$('#prev').addEventListener('click', () => select(sel - 1));
+$('#next').addEventListener('click', () => select(sel + 1));
+addEventListener('keydown', e => {
+  if(!$('#drawer').hidden || !$('#cover').hidden) { if(e.key === 'Escape') closeDrawer(); if(!$('#cover').hidden && (e.key==='ArrowRight'||e.key==='Enter') && document.activeElement === document.body) openApp(); return; }
+  if(e.target.closest('input')) return;
+  if(e.key === 'ArrowRight'){ e.preventDefault(); select(sel + 1); }
+  if(e.key === 'ArrowLeft'){ e.preventDefault(); select(sel - 1); }
+});
+// 左右滑
+(function swipe(){ let x0=0, y0=0, t0=0; const el = $('#panels');
+  el.addEventListener('touchstart', e => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; t0 = Date.now(); }, {passive:true});
+  el.addEventListener('touchend', e => { const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+    if(Math.abs(dx) > 60 && Math.abs(dy) < 50 && Date.now() - t0 < 700) select(sel + (dx < 0 ? 1 : -1)); }, {passive:true});
+})();
+
+/* ===== 地圖 ===== */
+$('#legs').innerHTML = LEGS.map((l,i) => `<path class="leg leg-draw ${l.ret?'leg-return':''}" id="leg${i}" d="${l.d}" style="animation-delay:${.3 + i*.25}s"/>`).join('');
+LEGS.forEach((l,i) => { const p = $('#leg'+i); if(!l.ret) p.style.setProperty('--len', Math.ceil(p.getTotalLength())); else p.classList.remove('leg-draw'); });
+$('#dots').innerHTML = STOPS.map((s,i) => `
+  <g class="stop-dot" data-i="${i}" tabindex="0" role="button" aria-label="${s.name}，第 ${s.c+1} 區">
+    <rect x="${s.x-11}" y="${s.y-11}" width="22" height="22" rx="7"/><text x="${s.x}" y="${s.y+.5}">${s.c+1}</text>
+  </g><text class="lbl" x="${s.lx}" y="${s.ly}" text-anchor="${s.anchor}">${s.short}</text>`).join('');
+$('#dots').addEventListener('click', e => { const g = e.target.closest('.stop-dot'); if(g) select(STOPS[+g.dataset.i].c + 1); });
+$('#dots').addEventListener('keydown', e => { const g = e.target.closest('.stop-dot'); if(g && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); select(STOPS[+g.dataset.i].c + 1); } });
+
+/* ===== 時間：車子、游標、狀態，播放時自動切換區塊 ===== */
+function locate(t){
+  for(let i=0;i<STOPS.length;i++){ const s = STOPS[i]; if(t >= s.start && t < s.end) return { kind:'stop', i }; }
+  for(let i=0;i<LEGS.length;i++){ const l = LEGS[i]; if(t >= l.from && t <= l.to) return { kind:'leg', i, f:(t - l.from)/(l.to - l.from) }; }
+  return { kind:'leg', i:6, f:1 };
+}
+function update(follow){
+  const t = cur, at = locate(t);
+  $('#clockTime').textContent = fmt(Math.round(t/5)*5);
+  const lab = $('#chart .lab').offsetWidth;
+  $('#cursor').style.left = `calc(${lab}px + (100% - ${lab}px) * ${(t - C0)/(C1 - C0)})`;
+  $$('.stop-dot.is-now').forEach(d => d.classList.remove('is-now'));
+  let pt, msg;
+  if(at.kind === 'stop'){
+    const s = STOPS[at.i]; pt = { x:s.x, y:s.y };
+    $(`.stop-dot[data-i="${at.i}"]`).classList.add('is-now');
+    msg = `<b>${s.name}</b>　第 ${s.c+1} 區，還可以待 ${Math.round(s.end - t)} 分`;
+    if(follow) select(s.c + 1);
+  } else {
+    const l = LEGS[at.i], p = $('#leg'+at.i);
+    pt = p.getPointAtLength(p.getTotalLength() * at.f);
+    msg = t <= C0 ? '<b>07:00 台北出發</b>　按 ▶ 或在圖上拖曳' : t >= P1 ? '<b>回到台北</b>' : `<b>開車中</b>　${l.label}，${fmt(l.to)} 到`;
+  }
+  $('#car').setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+  $('#status').innerHTML = msg;
+}
+let raf = null, last = 0;
+const PLAY = '<path d="M3 1.5v13l11-6.5z"/>', PAUSE = '<path d="M3 1.5h3.5v13H3zM9.5 1.5H13v13H9.5z"/>';
+function stopPlay(){ if(raf){ cancelAnimationFrame(raf); raf = null; } $('#playIcon').innerHTML = PLAY; $('#play').setAttribute('aria-label','播放一整天'); }
+function tick(now){
+  const dt = now - last; last = now;
+  cur = Math.min(P1, cur + dt * 0.045); // 約 20 秒播完一天
+  update(true);
+  if(cur >= P1){ stopPlay(); return; }
+  raf = requestAnimationFrame(tick);
+}
+$('#play').addEventListener('click', () => {
+  if(raf){ stopPlay(); return; }
+  if(cur >= P1) cur = C0;
+  $('#playIcon').innerHTML = PAUSE; $('#play').setAttribute('aria-label','暫停');
+  last = performance.now(); raf = requestAnimationFrame(tick);
+});
+
+/* ===== 週六／週日、晴／雨 ===== */
+function setDay(d){
+  day = d; $$('[data-day]').forEach(b => b.setAttribute('aria-pressed', b.dataset.day === d));
+  $('#northSegs').innerHTML = hourSegs(NORTH[d], 7, '北上車流');
+  $('#northSegs').closest('.crow').querySelector('.lab small').textContent = d === 'sun' ? '週日' : '週六';
+  markRules(); store.set('yilan-day', d);
+}
+function setRain(on){
+  document.body.classList.toggle('is-rain', on);
+  $$('[data-rain]').forEach(b => b.setAttribute('aria-pressed', (b.dataset.rain === '1') === on));
+  markRules(); store.set('yilan-rain', on);
+}
+function markRules(){ const rain = document.body.classList.contains('is-rain'); $$('#rules li').forEach(li => li.classList.toggle('hot', (li.dataset.k === 'sun' && day === 'sun') || (li.dataset.k === 'rain' && rain))); }
+$$('[data-day]').forEach(b => b.addEventListener('click', () => setDay(b.dataset.day)));
+$$('[data-rain]').forEach(b => b.addEventListener('click', () => setRain(b.dataset.rain === '1')));
+
+/* ===== 出發清單抽屜 ===== */
+const done = store.get('yilan-checks-v3') || {};
+$('#checks').innerHTML = CHECKS.map((c,i) => `<li><label for="chk-${i}"><input type="checkbox" id="chk-${i}" ${done[i]?'checked':''}><span>${c}</span></label></li>`).join('');
+$('#checks').addEventListener('change', e => { done[e.target.id.split('-')[1]] = e.target.checked; store.set('yilan-checks-v3', done); });
+function closeDrawer(){ $('#drawer').hidden = true; $('#openPrep').focus(); }
+$('#openPrep').addEventListener('click', () => { $('#drawer').hidden = false; $('#closePrep').focus(); });
+$('#closePrep').addEventListener('click', closeDrawer);
+$('#drawer').addEventListener('click', e => { if(e.target.id === 'drawer') closeDrawer(); });
+
+/* ===== 啟動 ===== */
+document.documentElement.style.setProperty('--barh', $('#bar').offsetHeight + 'px');
+addEventListener('resize', () => { document.documentElement.style.setProperty('--barh', $('#bar').offsetHeight + 'px'); select(sel); update(false); });
+setDay(store.get('yilan-day') === 'sun' ? 'sun' : 'sat');
+setRain(!!store.get('yilan-rain'));
+sel = -1; select(0);
+update(false);
+</script>
+
+</body>
+</html>
