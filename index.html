@@ -64,14 +64,17 @@ h1,h2,h3,h4{margin:0;text-wrap:balance}
 .art .lay{mix-blend-mode:multiply;animation:register 1.6s cubic-bezier(.2,.8,.2,1) both}
 .art .ly{animation-delay:.1s;--dx:-22px;--dy:14px} .art .lp{animation-delay:.25s;--dx:20px;--dy:-16px} .art .lb{animation-delay:.4s;--dx:-14px;--dy:-20px} .art .lg{animation-delay:.55s;--dx:18px;--dy:18px}
 @keyframes register{from{transform:translate(var(--dx),var(--dy));opacity:0}to{transform:none;opacity:1}}
-.art .wave{animation:wave 9s linear infinite}
-@keyframes wave{to{transform:translateX(-80px)}}
+.art .waves path{animation:dash 7s linear infinite}
+.art .waves path:nth-child(2n){animation-duration:9s}
+@keyframes dash{to{stroke-dashoffset:-112}}
+.art .refl{animation:shimmer 3s ease-in-out infinite}
+@keyframes shimmer{50%{opacity:.45}}
+.art .sunrise{animation:sunrise 2.8s cubic-bezier(.2,.7,.2,1) both .5s}
+@keyframes sunrise{from{transform:translateY(26px)}to{transform:none}}
 .art .boat{animation:bob 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 @keyframes bob{50%{transform:translateY(3px) rotate(-4deg)}}
 .art .birds{animation:fly 30s linear infinite -8s}
-@keyframes fly{from{transform:translateX(-80px)}to{transform:translateX(580px)}}
-.art .sunpulse{animation:sun 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-@keyframes sun{50%{transform:scale(1.04)}}
+@keyframes fly{from{transform:translateX(-140px)}to{transform:translateX(560px)}}
 .art .rain{opacity:0;transition:opacity .5s}
 .is-rain .art .rain{opacity:1}
 .art .drop{animation:fall linear infinite}
@@ -253,26 +256,67 @@ h1,h2,h3,h4{margin:0;text-wrap:balance}
       <figure class="art" aria-hidden="true">
         <svg viewBox="0 0 500 500">
           <defs>
-            <pattern id="dotsB" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.7" fill="#1E3A9E"/></pattern>
-            <pattern id="dotsG" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.6" fill="#1FA35B"/></pattern>
-            <pattern id="dotsP" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="2.4" fill="#FF4D9D"/></pattern>
+            <pattern id="dotsB" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.25" fill="#1E3A9E"/></pattern>
+            <pattern id="dotsG" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.35" fill="#1FA35B"/></pattern>
+            <pattern id="dotsP" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.4" fill="#FF4D9D"/></pattern>
+            <linearGradient id="skyFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/></linearGradient>
+            <mask id="skyMask"><rect width="500" height="300" fill="url(#skyFade)"/></mask>
+            <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E3A9E" stop-opacity=".45"/><stop offset="1" stop-color="#1E3A9E" stop-opacity=".95"/></linearGradient>
+            <clipPath id="sky"><rect width="500" height="301"/></clipPath>
+            <clipPath id="field"><path d="M0 404 C150 394 320 398 500 388 L500 500 L0 500 Z"/></clipPath>
           </defs>
-          <g class="lay ly"><circle class="sunpulse" cx="318" cy="168" r="96" fill="#FFD23F"/><path d="M0 360 L500 330 L500 500 L0 500 Z" fill="#FFD23F" opacity=".55"/></g>
-          <g class="lay lp"><circle cx="338" cy="186" r="62" fill="#FF4D9D"/><rect x="250" y="300" width="160" height="70" fill="url(#dotsP)"/>
-            <g class="boat"><path d="M392 318 L440 318 L432 328 L400 328 Z" fill="#FF4D9D"/><path d="M412 318 L412 298 L426 314 Z" fill="#FF4D9D"/></g></g>
-          <g class="lay lb">
-            <path d="M0 292 L0 170 C40 150 70 120 110 136 C150 152 170 110 214 122 C258 134 280 190 330 250 C350 274 380 290 410 300 L0 300 Z" fill="url(#dotsB)"/>
-            <rect x="0" y="296" width="500" height="80" fill="#1E3A9E" opacity=".85"/>
-            <path d="M282 298 C300 290 314 262 338 256 C358 251 370 270 376 282 C380 288 384 288 388 283 C393 276 402 276 406 285 C410 292 413 296 420 298 Z" fill="#1E3A9E"/>
-            <g class="wave" fill="none" stroke="#F1F2EC" stroke-width="2.5" stroke-linecap="round">
-              <path d="M0 320 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/>
-              <path d="M-20 346 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/>
-            </g>
-            <g class="birds" fill="none" stroke="#1E3A9E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M40 70 l8 6 l8 -6"/><path d="M66 56 l6 5 l6 -5"/><path d="M78 84 l5 4 l5 -4"/></g>
-            <g class="rain" id="rain" stroke="#1E3A9E" stroke-width="2"></g>
+          <!-- 黃版：太陽光暈、沙灘、田 -->
+          <g class="lay ly">
+            <g clip-path="url(#sky)"><g class="sunrise"><circle cx="318" cy="238" r="88" fill="#FFD23F"/></g></g>
+            <path d="M0 370 L500 370 L500 392 C300 402 140 398 0 410 Z" fill="#FFD23F"/>
+            <path d="M0 404 C150 394 320 398 500 388 L500 500 L0 500 Z" fill="#FFD23F" opacity=".45"/>
           </g>
-          <g class="lay lg"><path d="M0 380 L500 352 L500 500 L0 500 Z" fill="url(#dotsG)"/>
-            <g stroke="#1FA35B" stroke-width="5" fill="none" stroke-linecap="round"><path d="M0 410 L500 384"/><path d="M0 448 L500 424"/><path d="M0 488 L500 466"/><path d="M120 500 L180 368"/><path d="M300 500 L330 360"/></g></g>
+          <!-- 粉版：天空網點、日頭、倒影、帆 -->
+          <g class="lay lp">
+            <rect width="500" height="300" fill="url(#dotsP)" mask="url(#skyMask)"/>
+            <g clip-path="url(#sky)"><g class="sunrise"><circle cx="324" cy="244" r="58" fill="#FF4D9D"/></g></g>
+            <g class="refl" stroke="#FF4D9D" stroke-linecap="round">
+              <path d="M290 309 h68" stroke-width="3.5"/><path d="M298 319 h52" stroke-width="3.2"/><path d="M305 331 h38" stroke-width="3"/><path d="M311 345 h26" stroke-width="2.8"/><path d="M316 360 h16" stroke-width="2.6"/>
+            </g>
+            <g class="boat"><path d="M436 316 L436 296 L449 313 Z" fill="#FF4D9D"/></g>
+          </g>
+          <!-- 藍版：山稜、海、龜山島、鳥 -->
+          <g class="lay lb">
+            <path d="M0 300 L0 204 C28 194 52 170 84 176 C110 181 126 156 158 160 C190 164 208 194 238 212 C266 229 292 262 334 300 Z" fill="#1E3A9E" opacity=".28"/>
+            <path d="M0 300 L0 246 C40 236 74 222 112 230 C150 238 184 262 232 300 Z" fill="url(#dotsB)"/>
+            <rect y="300" width="500" height="70" fill="url(#seaGrad)"/>
+            <path d="M262 301 C278 296 290 286 300 270 C310 254 322 246 334 248 C348 250 356 266 364 280 C368 286 372 288 377 284 C383 278 390 276 396 282 C402 289 406 296 414 301 Z" fill="#1E3A9E"/>
+            <path d="M424 316 L456 316 L450 323 L430 323 Z" fill="#1E3A9E" class="boat"/>
+            <g class="birds" fill="none" stroke="#1E3A9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M60 92 q6 -6 12 0 q6 -6 12 0"/><path d="M92 74 q5 -5 10 0 q5 -5 10 0"/><path d="M104 104 q4 -4 8 0 q4 -4 8 0"/>
+            </g>
+            <g class="rain" id="rain" stroke="#1E3A9E" stroke-width="1.8" stroke-linecap="round"></g>
+          </g>
+          <!-- 綠版：透視稻田 -->
+          <g class="lay lg">
+            <path d="M0 404 C150 394 320 398 500 388 L500 500 L0 500 Z" fill="url(#dotsG)"/>
+            <g clip-path="url(#field)" stroke="#1FA35B" stroke-width="2.4" fill="none" stroke-linecap="round">
+              <path d="M250 300 L-260 500"/><path d="M250 300 L-40 500"/><path d="M250 300 L110 500"/><path d="M250 300 L250 500"/><path d="M250 300 L390 500"/><path d="M250 300 L540 500"/><path d="M250 300 L760 500"/>
+              <path d="M0 422 C150 412 320 416 500 406"/><path d="M0 446 C150 437 320 440 500 431"/><path d="M0 478 C150 470 320 472 500 464"/>
+            </g>
+          </g>
+          <!-- 留白：切過太陽的雲、浪、白鷺鷥 -->
+          <g class="knock">
+            <g stroke="#F1F2EC" stroke-linecap="round" fill="none">
+              <path d="M228 222 h96" stroke-width="4"/><path d="M300 236 h70" stroke-width="3"/><path d="M262 262 h40" stroke-width="2.5"/>
+            </g>
+            <g class="waves" stroke="#F1F2EC" stroke-linecap="round" fill="none">
+              <path d="M0 307 H500" stroke-width="1.4" stroke-dasharray="6 22"/>
+              <path d="M-12 316 H500" stroke-width="1.6" stroke-dasharray="9 24"/>
+              <path d="M0 328 H500" stroke-width="1.8" stroke-dasharray="13 26"/>
+              <path d="M-20 343 H500" stroke-width="2" stroke-dasharray="18 28"/>
+              <path d="M0 361 H500" stroke-width="2.3" stroke-dasharray="24 30"/>
+            </g>
+            <g fill="#F1F2EC" stroke="#1E3A9E" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+              <g transform="translate(214 438)"><path d="M-12 0 C-10 -8 2 -10 8 -4 L12 -14 L16 -15 L13 -12 C11 -6 10 0 4 3 C-2 5 -10 4 -12 0 Z"/><path d="M-2 4 L-3 13 M3 4 L4 13" fill="none"/></g>
+              <g transform="translate(372 470) scale(.8)"><path d="M-12 0 C-10 -8 2 -10 8 -4 L12 -14 L16 -15 L13 -12 C11 -6 10 0 4 3 C-2 5 -10 4 -12 0 Z"/><path d="M-2 4 L-3 13 M3 4 L4 13" fill="none"/></g>
+            </g>
+          </g>
         </svg>
         <figcaption class="art-cap">從頭城看龜山島日出</figcaption>
       </figure>
